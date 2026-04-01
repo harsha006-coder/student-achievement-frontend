@@ -1,0 +1,54 @@
+import { useState, useEffect, ReactNode } from "react";
+import { useLocation } from "react-router-dom";
+import { LucideIcon } from "lucide-react";
+import AppSidebar from "./AppSidebar";
+import Navbar from "./Navbar";
+
+interface NavItem {
+  title: string;
+  url: string;
+  icon: LucideIcon;
+}
+
+interface DashboardLayoutProps {
+  children: ReactNode;
+  navItems: NavItem[];
+}
+
+const pageTitles: Record<string, string> = {
+  "/student/dashboard": "Dashboard",
+  "/student/achievements": "Achievements",
+  "/student/profile": "Profile",
+  "/student/report": "Report",
+  "/student/settings": "Settings",
+  "/admin/dashboard": "Dashboard",
+  "/admin/manage-achievements": "Manage Achievements",
+  "/admin/profile": "Profile",
+  "/admin/report": "Report",
+  "/admin/settings": "Settings",
+};
+
+const DashboardLayout = ({ children, navItems }: DashboardLayoutProps) => {
+  const [collapsed, setCollapsed] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem("darkMode") === "true");
+  const location = useLocation();
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", darkMode);
+    localStorage.setItem("darkMode", String(darkMode));
+  }, [darkMode]);
+
+  const title = pageTitles[location.pathname] || "Dashboard";
+
+  return (
+    <div className="min-h-screen bg-[#f1f5f9] w-full">
+      <AppSidebar items={navItems} collapsed={collapsed} />
+      <div className="ml-64 w-full flex flex-col min-w-0">
+        <Navbar title={title} onToggleSidebar={() => setCollapsed(!collapsed)} darkMode={darkMode} onToggleDark={() => setDarkMode(!darkMode)} />
+        <main className="flex-1 p-6 animate-fade-in bg-[#f1f5f9]">{children}</main>
+      </div>
+    </div>
+  );
+};
+
+export default DashboardLayout;
