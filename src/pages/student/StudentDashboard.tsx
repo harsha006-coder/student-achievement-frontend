@@ -56,7 +56,7 @@ const StudentDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
         <StatsCard title="Total Achievements" value={total} icon={Trophy} color="primary" trend="+12%" />
         <StatsCard title="Approved" value={approved} icon={CheckCircle} color="success" />
         <StatsCard title="Pending" value={pending} icon={Clock} color="warning" />

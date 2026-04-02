@@ -23,7 +23,7 @@ const accentMap = {
 };
 
 const StatsCard = ({ title, value, icon: Icon, trend, color = "primary" }: StatsCardProps) => (
-  <div className="relative overflow-hidden p-6 group bg-white rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
+  <div className="relative w-full overflow-hidden p-6 group bg-white rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-300">
     {/* Accent line */}
     <div className="absolute top-0 left-0 right-0 h-1" style={{ background: accentMap[color] }} />
 
