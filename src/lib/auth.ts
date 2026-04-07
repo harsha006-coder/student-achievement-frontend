@@ -17,6 +17,14 @@ export async function registerUser(user: User): Promise<boolean> {
     await API.post("/auth/register", user);
     return true;
   } catch (err) {
+    if (axios.isAxiosError(err) && !err.response) {
+      throw new Error("SERVER_UNREACHABLE");
+    }
+
+    if (axios.isAxiosError(err) && err.response?.status === 409) {
+      return false;
+    }
+
     console.error(err);
     return false;
   }
@@ -24,9 +32,8 @@ export async function registerUser(user: User): Promise<boolean> {
 
 export async function loginUser(identifier: string, password: string, role: string): Promise<User | null> {
   try {
-    const email = identifier;
-    const res = await axios.post("http://localhost:8083/api/auth/login", {
-      email,
+    const res = await API.post("/auth/login", {
+      email: identifier,
       password,
     });
     const user: User = res.data;
@@ -40,6 +47,14 @@ export async function loginUser(identifier: string, password: string, role: stri
     localStorage.setItem("userName", user.name || user.email.split("@")[0] || "Student");
     return user;
   } catch (err) {
+    if (axios.isAxiosError(err) && !err.response) {
+      throw new Error("SERVER_UNREACHABLE");
+    }
+
+    if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
+      return null;
+    }
+
     console.error(err);
     return null;
   }

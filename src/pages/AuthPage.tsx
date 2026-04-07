@@ -24,34 +24,54 @@ const AuthPage = () => {
       setMessageType("error");
       return;
     }
-    const success = await registerUser({ name, email, password, role, userClass, department });
-    if (success) {
-      setMessage("Registration successful! Please sign in.");
-      setMessageType("success");
-      setIsLogin(true);
-      setName("");
-      setPassword("");
-      setUserClass("");
-      setDepartment("");
-    } else {
-      setMessage("Email already registered or registration failed");
+    try {
+      const success = await registerUser({ name, email, password, role, userClass, department });
+      if (success) {
+        setMessage("Registration successful! Please sign in.");
+        setMessageType("success");
+        setIsLogin(true);
+        setName("");
+        setPassword("");
+        setUserClass("");
+        setDepartment("");
+      } else {
+        setMessage("Email already registered or registration failed");
+        setMessageType("error");
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message === "SERVER_UNREACHABLE") {
+        setMessage("Cannot connect to backend API. Start backend server or set VITE_API_URL.");
+        setMessageType("error");
+        return;
+      }
+      setMessage("Registration failed. Please try again.");
       setMessageType("error");
     }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const user = await loginUser(identifier, password, role);
-    if (user) {
-      if (user.role && user.role.toLowerCase() === "admin") {
-         navigate("/admin/dashboard");
-      } else if (user.role && user.role.toLowerCase() === "teacher") {
-         navigate("/teacher/dashboard");
+    try {
+      const user = await loginUser(identifier, password, role);
+      if (user) {
+        if (user.role && user.role.toLowerCase() === "admin") {
+          navigate("/admin/dashboard");
+        } else if (user.role && user.role.toLowerCase() === "teacher") {
+          navigate("/teacher/dashboard");
+        } else {
+          navigate("/student/dashboard");
+        }
       } else {
-         navigate("/student/dashboard");
+        setMessage("Invalid credentials or role mismatch");
+        setMessageType("error");
       }
-    } else {
-      setMessage("Invalid credentials or role mismatch");
+    } catch (error) {
+      if (error instanceof Error && error.message === "SERVER_UNREACHABLE") {
+        setMessage("Cannot connect to backend API. Start backend server or set VITE_API_URL.");
+        setMessageType("error");
+        return;
+      }
+      setMessage("Login failed. Please try again.");
       setMessageType("error");
     }
   };

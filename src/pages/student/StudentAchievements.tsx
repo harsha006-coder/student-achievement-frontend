@@ -64,7 +64,7 @@ const StudentAchievements = () => {
 
   return (
     <div className="space-y-6">
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="rounded-xl border border-gray-200 p-4 bg-white">
           <p className="text-xs text-gray-500 uppercase tracking-wide">Total</p>
           <div className="mt-2 flex items-center justify-between">

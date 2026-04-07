@@ -39,7 +39,9 @@ const DashboardLayout = ({ children, navItems }: DashboardLayoutProps) => {
   const title = pageTitles[location.pathname] || "Dashboard";
 
   return (
-    <div className="min-h-screen w-full" style={{ background: "#f3f5f8" }}>
+    <div
+      className={`min-h-screen w-full transition-colors ${darkMode ? "bg-slate-950" : "bg-[#f3f5f8]"}`}
+    >
       <div className="flex-1 min-w-0 flex flex-col">
         <Navbar
           title={title}
@@ -47,8 +49,10 @@ const DashboardLayout = ({ children, navItems }: DashboardLayoutProps) => {
           darkMode={darkMode}
           onToggleDark={() => setDarkMode(!darkMode)}
         />
-        <main className="flex-1 p-6 w-full">
-          {children}
+        <main className="flex-1 w-full px-3 sm:px-4 md:px-6 py-4 md:py-6">
+          <div className="max-w-[1240px] mx-auto">
+            {children}
+          </div>
         </main>
       </div>
     </div>
