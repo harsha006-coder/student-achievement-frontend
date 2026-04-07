@@ -6,26 +6,26 @@
 
 @layer base {
   :root {
-    --radius: 0.75rem;
+    --radius: 0.5rem;
     --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    --foreground: 220 20% 17%;
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
-    --primary: 239 84% 67%;
+    --primary: 211 82% 51%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
+    --secondary: 210 28% 95%;
+    --secondary-foreground: 220 20% 17%;
+    --muted: 210 28% 95%;
+    --muted-foreground: 215 14% 42%;
+    --accent: 210 28% 95%;
+    --accent-foreground: 220 20% 17%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 239 84% 67%;
+    --ring: 211 82% 51%;
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
@@ -58,9 +58,50 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-weight: 400;
+    line-height: 1.45;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+}
+
+/* Visual alignment with reference style */
+.bg-indigo-600,
+.bg-blue-600 {
+  background-color: #1a73e8 !important;
+}
+
+.hover\:bg-indigo-700:hover,
+.hover\:bg-blue-700:hover {
+  background-color: #1765c1 !important;
+}
+
+.text-indigo-600,
+.text-blue-600 {
+  color: #1a73e8 !important;
+}
+
+.border-indigo-500,
+.border-blue-500 {
+  border-color: #1a73e8 !important;
+}
+
+.rounded-2xl,
+.rounded-xl {
+  border-radius: 8px !important;
+}
+
+.shadow-sm,
+.shadow-md,
+.shadow-lg,
+.shadow-xl,
+.shadow-2xl {
+  box-shadow: none !important;
+}
+
+.border-gray-100,
+.border-gray-200 {
+  border-color: #dfe3e8 !important;
 }
 
 /* ─── Scrollbar ─── */
@@ -124,10 +165,10 @@
 
 /* ─── Glass Effect ─── */
 .glass {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(31, 111, 229, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(23, 98, 205, 1);
 }
 .glass-dark {
   background: rgba(15, 23, 42, 0.8);

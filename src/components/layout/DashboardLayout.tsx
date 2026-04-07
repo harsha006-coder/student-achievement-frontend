@@ -41,7 +41,7 @@ const DashboardLayout = ({ children, navItems }: DashboardLayoutProps) => {
   const title = pageTitles[location.pathname] || "Dashboard";
 
   return (
-    <div className="min-h-screen w-full flex" style={{ background: "linear-gradient(135deg, #f0f4ff 0%, #f8f9fe 50%, #f0f0ff 100%)" }}>
+    <div className="min-h-screen w-full flex" style={{ background: "#f3f5f8" }}>
       <AppSidebar items={navItems} collapsed={collapsed} />
       <div
         className={`flex-1 min-w-0 flex flex-col transition-all duration-300 ease-in-out ${
@@ -55,7 +55,7 @@ const DashboardLayout = ({ children, navItems }: DashboardLayoutProps) => {
           onToggleDark={() => setDarkMode(!darkMode)}
           collapsed={collapsed}
         />
-        <main className="flex-1 p-6 w-full animate-slide-up">
+        <main className="flex-1 p-6 w-full">
           {children}
         </main>
       </div>
