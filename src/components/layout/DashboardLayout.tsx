@@ -1,7 +1,6 @@
 import { useState, useEffect, ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { LucideIcon } from "lucide-react";
-import AppSidebar from "./AppSidebar";
 import Navbar from "./Navbar";
 
 interface NavItem {
@@ -29,7 +28,6 @@ const pageTitles: Record<string, string> = {
 };
 
 const DashboardLayout = ({ children, navItems }: DashboardLayoutProps) => {
-  const [collapsed, setCollapsed] = useState(false);
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem("darkMode") === "true");
   const location = useLocation();
 
@@ -41,19 +39,13 @@ const DashboardLayout = ({ children, navItems }: DashboardLayoutProps) => {
   const title = pageTitles[location.pathname] || "Dashboard";
 
   return (
-    <div className="min-h-screen w-full flex" style={{ background: "#f3f5f8" }}>
-      <AppSidebar items={navItems} collapsed={collapsed} />
-      <div
-        className={`flex-1 min-w-0 flex flex-col transition-all duration-300 ease-in-out ${
-          collapsed ? "ml-20" : "ml-[260px]"
-        }`}
-      >
+    <div className="min-h-screen w-full" style={{ background: "#f3f5f8" }}>
+      <div className="flex-1 min-w-0 flex flex-col">
         <Navbar
           title={title}
-          onToggleSidebar={() => setCollapsed(!collapsed)}
+          navItems={navItems}
           darkMode={darkMode}
           onToggleDark={() => setDarkMode(!darkMode)}
-          collapsed={collapsed}
         />
         <main className="flex-1 p-6 w-full">
           {children}
