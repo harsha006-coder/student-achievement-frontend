@@ -3,14 +3,7 @@ import API from "@/lib/api";
 import DataTable from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
 import SearchFilter from "@/components/dashboard/SearchFilter";
-
-type Achievement = {
-  id: number;
-  title: string;
-  category: string;
-  date: string;
-  status: string | null;
-};
+import type { Achievement } from "@/lib/types";
 
 const AdminReport = () => {
   const [data, setData] = useState<Achievement[]>([]);

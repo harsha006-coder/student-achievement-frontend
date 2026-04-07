@@ -15,12 +15,15 @@ import AdminManageAchievements from "./pages/admin/AdminManageAchievements";
 import AdminProfile from "./pages/admin/AdminProfile";
 import AdminReport from "./pages/admin/AdminReport";
 import AdminSettings from "./pages/admin/AdminSettings";
+import TeacherLayout from "./layouts/TeacherLayout";
+import TeacherDashboard from "./pages/teacher/TeacherDashboard";
+
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/" element={<AuthPage />} />
 
@@ -39,6 +42,15 @@ const App = () => (
             <Route path="report" element={<AdminReport />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
+
+          <Route path="/teacher" element={<TeacherLayout />}>
+            <Route path="dashboard" element={<TeacherDashboard />} />
+            <Route path="records" element={<TeacherDashboard />} /> { /* Reuse dashboard for records filtered by class */ }
+            <Route path="profile" element={<AdminProfile />} /> { /* Reuse AdminProfile as it's generic */ }
+            <Route path="report" element={<AdminReport />} /> { /* Reuse AdminReport as it's generic */ }
+            <Route path="settings" element={<AdminSettings />} /> { /* Reuse AdminSettings */ }
+          </Route>
+
 
           <Route path="*" element={<NotFound />} />
         </Routes>

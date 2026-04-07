@@ -2,14 +2,7 @@ import { useEffect, useState } from "react";
 import API from "@/lib/api";
 import DataTable from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
-
-type Achievement = {
-  id: number;
-  title: string;
-  category: string;
-  date: string;
-  status: string | null;
-};
+import type { Achievement } from "@/lib/types";
 
 const columns = [
   { header: "Title", accessor: "title" as keyof Achievement },

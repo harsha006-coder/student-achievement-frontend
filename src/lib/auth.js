@@ -1,18 +1,6 @@
-export interface User {
-  id?: number;
-  name: string;
-  email: string;
-  password: string;
-  role: "student" | "admin" | "teacher";
-  class?: string;
-  userClass?: string;
-  department?: string;
-}
-
 import API from "./api";
-import axios from "axios";
 
-export async function registerUser(user: User): Promise<boolean> {
+export async function registerUser(user) {
   try {
     await API.post("/auth/register", user);
     return true;
@@ -22,14 +10,10 @@ export async function registerUser(user: User): Promise<boolean> {
   }
 }
 
-export async function loginUser(identifier: string, password: string, role: string): Promise<User | null> {
+export async function loginUser(identifier, password, role) {
   try {
-    const email = identifier;
-    const res = await axios.post("http://localhost:8083/api/auth/login", {
-      email,
-      password,
-    });
-    const user: User = res.data;
+    const res = await API.post("/auth/login", { email: identifier, password: password });
+    const user = res.data;
     
     if (user.role && user.role.toUpperCase() !== role.toUpperCase()) {
       return null;
@@ -45,7 +29,7 @@ export async function loginUser(identifier: string, password: string, role: stri
   }
 }
 
-export function getCurrentUser(): User | null {
+export function getCurrentUser() {
   const data = localStorage.getItem("currentUser");
   return data ? JSON.parse(data) : null;
 }

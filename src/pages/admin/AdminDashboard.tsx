@@ -3,9 +3,11 @@ import StatsCard from "@/components/dashboard/StatsCard";
 import DataTable from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
 import { useAchievements } from "@/context/AchievementContext";
+import type { Achievement } from "@/lib/types";
 
 const columns = [
   { header: "Student", accessor: "studentName" as keyof Achievement },
+  { header: "Class", accessor: "userClass" as keyof Achievement },
   { header: "Title", accessor: "title" as keyof Achievement },
   { header: "Category", accessor: "category" as keyof Achievement },
   { header: "Date", accessor: "date" as keyof Achievement },

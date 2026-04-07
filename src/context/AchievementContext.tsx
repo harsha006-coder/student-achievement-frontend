@@ -1,38 +1,34 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import API from "@/lib/api";
+import type { Achievement } from "@/lib/types";
+import { getCurrentUser } from "@/lib/auth";
 
-type Achievement = {
-  id: number;
-  title: string;
-  category: string;
-  date: string;
-  status: string | null;
+type AchievementContextType = {
+  achievements: Achievement[];
+  fetchAchievements: () => Promise<void>;
+  addAchievement: (achievement: Partial<Achievement>) => Promise<void>;
 };
 
-interface AchievementContextValue {
-  achievements: Achievement[];
-  fetchAchievements: () => void;
-  addAchievement: (newAchievement: {
-    title: string;
-    category: string;
-    date: string;
-    status: string | null;
-  }) => void;
-}
-
-const AchievementContext = createContext<AchievementContextValue | undefined>(undefined);
+const AchievementContext = createContext<AchievementContextType | undefined>(undefined);
 
 export const AchievementProvider = ({ children }: { children: ReactNode }) => {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
-
-  const userId = 1; // 🔥 later replace with login
-
-  // 🔥 FETCH from backend
+  
   const fetchAchievements = async () => {
+    const user = getCurrentUser();
+    if (!user || user.id === undefined) return;
     try {
-      const res = await API.get(`/achievements/student/${userId}`);
-      setAchievements(res.data);
+      if (user.role && user.role.toLowerCase() === "admin") {
+        const res = await API.get(`/achievements/all`);
+        setAchievements(res.data);
+      } else if (user.role && user.role.toLowerCase() === "teacher" && user.userClass) {
+        const res = await API.get(`/achievements/teacher/${user.userClass}`);
+        setAchievements(res.data);
+      } else {
+        const res = await API.get(`/achievements/student/${user.id}`);
+        setAchievements(res.data);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -42,16 +38,12 @@ export const AchievementProvider = ({ children }: { children: ReactNode }) => {
     fetchAchievements();
   }, []);
 
-  // 🔥 ADD via backend
-  const addAchievement = async (newAchievement: {
-    title: string;
-    category: string;
-    date: string;
-    status: string | null;
-  }) => {
+  const addAchievement = async (newAchievement: Partial<Achievement>) => {
+    const user = getCurrentUser();
+    if (!user || user.id === undefined) return;
     try {
-      await API.post(`/achievements/add/${userId}`, newAchievement);
-      fetchAchievements(); // refresh
+      await API.post(`/achievements/add/${user.id}`, newAchievement);
+      fetchAchievements();
     } catch (err) {
       console.error(err);
     }

@@ -41,11 +41,23 @@ const DashboardLayout = ({ children, navItems }: DashboardLayoutProps) => {
   const title = pageTitles[location.pathname] || "Dashboard";
 
   return (
-    <div className="min-h-screen bg-[#f1f5f9] w-full flex">
+    <div className="min-h-screen w-full flex" style={{ background: "linear-gradient(135deg, #f0f4ff 0%, #f8f9fe 50%, #f0f0ff 100%)" }}>
       <AppSidebar items={navItems} collapsed={collapsed} />
-      <div className="ml-64 flex-1 min-w-0 flex flex-col">
-        <Navbar title={title} onToggleSidebar={() => setCollapsed(!collapsed)} darkMode={darkMode} onToggleDark={() => setDarkMode(!darkMode)} />
-        <main className="flex-1 p-6 w-full animate-fade-in bg-[#f1f5f9]">{children}</main>
+      <div
+        className={`flex-1 min-w-0 flex flex-col transition-all duration-300 ease-in-out ${
+          collapsed ? "ml-20" : "ml-[260px]"
+        }`}
+      >
+        <Navbar
+          title={title}
+          onToggleSidebar={() => setCollapsed(!collapsed)}
+          darkMode={darkMode}
+          onToggleDark={() => setDarkMode(!darkMode)}
+          collapsed={collapsed}
+        />
+        <main className="flex-1 p-6 w-full animate-slide-up">
+          {children}
+        </main>
       </div>
     </div>
   );

@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Trophy, CheckCircle, Clock, XCircle } from "lucide-react";
-import API from "@/lib/api";
 import StatsCard from "@/components/dashboard/StatsCard";
+import ProgressChart from "@/components/dashboard/ProgressChart";
 import DataTable from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
-import { getCurrentUser } from "@/lib/auth";
+import { useAchievements } from "@/context/AchievementContext";
+import type { Achievement } from "@/lib/types";
 
 const columns = [
   { header: "Title", accessor: "title" as keyof Achievement },
@@ -14,39 +15,11 @@ const columns = [
 ];
 
 const StudentDashboard = () => {
-  const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  const user = getCurrentUser();
-  const userId = user?.id || 1;
+  const { achievements, fetchAchievements } = useAchievements();
 
   useEffect(() => {
-    const fetchAchievements = async () => {
-      try {
-        setLoading(true);
-        const response = await API.get(`/achievements/student/${userId}`);
-        setAchievements(response.data || []);
-        setError(null);
-      } catch (err) {
-        console.error("Failed to fetch achievements:", err);
-        setError("Failed to load achievements. Please try again.");
-        setAchievements([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAchievements();
-  }, [userId]);
-
-  if (loading) {
-    return <div className="text-center py-8">Loading achievements...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center py-8 text-red-600">{error}</div>;
-  }
+  }, []);
 
   const total = achievements.length;
   const approved = achievements.filter((a) => a.status === "Approved").length;
@@ -54,13 +27,16 @@ const StudentDashboard = () => {
   const rejected = achievements.filter((a) => a.status === "Rejected").length;
   const recentAchievements = achievements.slice(0, 5);
 
+
+
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 w-full">
         <StatsCard title="Total Achievements" value={total} icon={Trophy} color="primary" trend="+12%" />
         <StatsCard title="Approved" value={approved} icon={CheckCircle} color="success" />
         <StatsCard title="Pending" value={pending} icon={Clock} color="warning" />
         <StatsCard title="Rejected" value={rejected} icon={XCircle} color="secondary" />
+        <ProgressChart approved={approved} pending={pending} rejected={rejected} />
       </div>
       <div>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Achievements</h2>

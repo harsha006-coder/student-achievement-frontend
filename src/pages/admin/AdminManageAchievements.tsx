@@ -4,15 +4,7 @@ import API from "@/lib/api";
 import DataTable from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
 import SearchFilter from "@/components/dashboard/SearchFilter";
-
-type Achievement = {
-  id: string | number;
-  title: string;
-  category: string;
-  date: string;
-  studentName: string;
-  status: "Approved" | "Pending" | "Rejected" | null;
-};
+import type { Achievement, AchievementStatus } from "@/lib/types";
 
 const AdminManageAchievements = () => {
   const [search, setSearch] = useState("");
@@ -30,6 +22,8 @@ const AdminManageAchievements = () => {
     date: new Date().toISOString().split("T")[0],
   });
   const [submitting, setSubmitting] = useState(false);
+  const [processingActionId, setProcessingActionId] = useState<string | number | null>(null);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
 
   const fetchAchievements = async () => {
     try {
@@ -54,12 +48,78 @@ const AdminManageAchievements = () => {
     fetchAchievements();
   }, []);
 
-  const updateStatus = (id: string, status: Achievement["status"]) => {
-    setAchievements((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
+  const requestWithFallback = async (requests: Array<() => Promise<unknown>>) => {
+    let lastError: unknown;
+    for (const request of requests) {
+      try {
+        await request();
+        return;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+    throw lastError;
   };
 
-  const deleteAchievement = (id: string) => {
-    setAchievements((prev) => prev.filter((a) => a.id !== id));
+  const updateStatus = async (id: string | number, status: AchievementStatus | null) => {
+    if (!status) return;
+    try {
+      setProcessingActionId(id);
+      await requestWithFallback([
+        () => API.patch(`/achievements/${id}/status`, { status }),
+        () => API.put(`/achievements/${id}/status`, { status }),
+        () => API.put(`/achievements/update-status/${id}`, { status }),
+        () => API.patch(`/achievements/${id}`, { status }),
+        () => API.put(`/achievements/${id}`, { status }),
+      ]);
+      await fetchAchievements();
+    } catch (err) {
+      console.error("Failed to update achievement status:", err);
+      alert("Failed to update status. Please check backend status endpoint.");
+    } finally {
+      setProcessingActionId(null);
+    }
+  };
+
+  const deleteAchievement = async (id: string | number) => {
+    try {
+      setProcessingActionId(id);
+      await requestWithFallback([
+        () => API.delete(`/achievements/${id}`),
+        () => API.delete(`/achievements/delete/${id}`),
+        () => API.delete(`/achievements/remove/${id}`),
+      ]);
+      await fetchAchievements();
+    } catch (err) {
+      console.error("Failed to delete achievement:", err);
+      alert("Failed to delete achievement. Please check backend delete endpoint.");
+    } finally {
+      setProcessingActionId(null);
+    }
+  };
+
+  const clearOldData = async () => {
+    if (achievements.length === 0) return;
+    const confirmed = window.confirm("Delete all existing achievements? This cannot be undone.");
+    if (!confirmed) return;
+
+    try {
+      setBulkDeleting(true);
+      for (const achievement of achievements) {
+        await requestWithFallback([
+          () => API.delete(`/achievements/${achievement.id}`),
+          () => API.delete(`/achievements/delete/${achievement.id}`),
+          () => API.delete(`/achievements/remove/${achievement.id}`),
+        ]);
+      }
+      await fetchAchievements();
+      alert("Old data removed. You can now add new records.");
+    } catch (err) {
+      console.error("Failed to clear old data:", err);
+      alert("Could not clear all records. Please verify backend delete APIs.");
+    } finally {
+      setBulkDeleting(false);
+    }
   };
 
   const addAchievement = async (e: React.FormEvent) => {
@@ -102,7 +162,7 @@ const AdminManageAchievements = () => {
   };
 
   const filtered = achievements.filter((a) => {
-    const matchSearch = a.title.toLowerCase().includes(search.toLowerCase()) || a.studentName.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = a.title.toLowerCase().includes(search.toLowerCase()) || (a.studentName || "").toLowerCase().includes(search.toLowerCase());
     const matchFilter = !filter || a.category === filter;
     return matchSearch && matchFilter;
   });
@@ -117,14 +177,26 @@ const AdminManageAchievements = () => {
       header: "Actions",
       accessor: (row: Achievement) => (
         <div className="flex gap-2">
-          <button onClick={() => updateStatus(row.id, "Approved")} className="px-3 py-1 text-xs font-medium rounded-lg bg-green-100 text-green-700 hover:bg-green-200 transition">
+          <button
+            onClick={() => updateStatus(row.id, "Approved")}
+            disabled={processingActionId === row.id}
+            className="px-3 py-1 text-xs font-medium rounded-lg bg-green-100 text-green-700 hover:bg-green-200 disabled:bg-gray-200 disabled:text-gray-500 transition"
+          >
             Approve
           </button>
-          <button onClick={() => updateStatus(row.id, "Rejected")} className="px-3 py-1 text-xs font-medium rounded-lg bg-red-100 text-red-700 hover:bg-red-200 transition">
+          <button
+            onClick={() => updateStatus(row.id, "Rejected")}
+            disabled={processingActionId === row.id}
+            className="px-3 py-1 text-xs font-medium rounded-lg bg-red-100 text-red-700 hover:bg-red-200 disabled:bg-gray-200 disabled:text-gray-500 transition"
+          >
             Reject
           </button>
-          <button onClick={() => deleteAchievement(row.id)} className="px-3 py-1 text-xs font-medium rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 transition">
-            Delete
+          <button
+            onClick={() => deleteAchievement(row.id)}
+            disabled={processingActionId === row.id}
+            className="px-3 py-1 text-xs font-medium rounded-lg bg-gray-100 text-gray-500 hover:bg-gray-200 disabled:bg-gray-200 disabled:text-gray-400 transition"
+          >
+            {processingActionId === row.id ? "Working..." : "Delete"}
           </button>
         </div>
       ),
@@ -139,13 +211,22 @@ const AdminManageAchievements = () => {
         <>
           <div className="mb-6 flex justify-between items-center">
             <SearchFilter search={search} onSearchChange={setSearch} filter={filter} onFilterChange={setFilter} filterOptions={categories} />
-            <button 
-              onClick={() => setShowForm(!showForm)}
-              className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium"
-            >
-              <Plus size={18} />
-              Add Achievement
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={clearOldData}
+                disabled={bulkDeleting || achievements.length === 0}
+                className="px-4 py-2 bg-rose-600 text-white rounded-lg hover:bg-rose-700 disabled:bg-gray-400 transition font-medium"
+              >
+                {bulkDeleting ? "Clearing..." : "Clear Old Data"}
+              </button>
+              <button
+                onClick={() => setShowForm(!showForm)}
+                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium"
+              >
+                <Plus size={18} />
+                Add Achievement
+              </button>
+            </div>
           </div>
 
           {showForm && (

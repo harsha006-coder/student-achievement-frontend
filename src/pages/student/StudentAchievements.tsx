@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Trophy, Clock, CheckCircle, XCircle } from "lucide-react";
 import DataTable from "@/components/dashboard/DataTable";
 import StatusBadge from "@/components/dashboard/StatusBadge";
 import SearchFilter from "@/components/dashboard/SearchFilter";
 import { useAchievements } from "@/context/AchievementContext";
+import type { Achievement, AchievementStatus } from "@/lib/types";
 
 const columns = [
   { header: "Title", accessor: "title" as keyof Achievement },
@@ -12,25 +13,34 @@ const columns = [
 ];
 
 const StudentAchievements = () => {
-  const { achievements, addAchievement } = useAchievements();
+  const { achievements, addAchievement, fetchAchievements } = useAchievements();
   const [search, setSearch] = useState("");
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
-  const [status, setStatus] = useState<Achievement["status"]>("Pending");
+  const [status, setStatus] = useState<AchievementStatus>("Pending");
 
-  const submitAchievement = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetchAchievements();
+  }, []);
+
+  const submitAchievement = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !date) return;
 
-    const studentName = localStorage.getItem("userName") || "Student";
+    try {
+      await addAchievement({
+        title: title.trim(),
+        category: "Extracurricular",
+        date: date,
+        status: String(status).toUpperCase() as AchievementStatus,
+      });
 
-    addAchievement({
-      studentName,
-      title: title.trim(),
-      date,
-      status,
-      category: "Extracurricular",
-    });
+      alert("Submitted!");
+    } catch (error) {
+      console.error("Failed to submit achievement:", error);
+      alert("Failed to submit achievement. Please try again.");
+      return;
+    }
 
     setTitle("");
     setDate("");
@@ -102,7 +112,7 @@ const StudentAchievements = () => {
           />
           <select
             value={status}
-            onChange={(e) => setStatus(e.target.value as Achievement["status"])}
+            onChange={(e) => setStatus(e.target.value as AchievementStatus)}
             className="px-4 py-2.5 rounded-lg border border-gray-300 bg-white text-sm"
           >
             <option value="Pending">Pending</option>
