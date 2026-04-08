@@ -20,13 +20,13 @@ export const AchievementProvider = ({ children }: { children: ReactNode }) => {
     if (!user || user.id === undefined) return;
     try {
       if (user.role && user.role.toLowerCase() === "admin") {
-        const res = await API.get(`/achievements/all`);
+        const res = await API.get(`achievements/all`);
         setAchievements(res.data);
       } else if (user.role && user.role.toLowerCase() === "teacher" && user.userClass) {
-        const res = await API.get(`/achievements/teacher/${user.userClass}`);
+        const res = await API.get(`achievements/teacher/${user.userClass}`);
         setAchievements(res.data);
       } else {
-        const res = await API.get(`/achievements/student/${user.id}`);
+        const res = await API.get(`achievements/student/${user.id}`);
         setAchievements(res.data);
       }
     } catch (err) {
@@ -42,7 +42,7 @@ export const AchievementProvider = ({ children }: { children: ReactNode }) => {
     const user = getCurrentUser();
     if (!user || user.id === undefined) return;
     try {
-      await API.post(`/achievements/add/${user.id}`, newAchievement);
+      await API.post(`achievements/add/${user.id}`, newAchievement);
       fetchAchievements();
     } catch (err) {
       console.error(err);

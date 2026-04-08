@@ -14,7 +14,7 @@ import axios from "axios";
 
 export async function registerUser(user: User): Promise<boolean> {
   try {
-    await API.post("/auth/register", user);
+    await API.post("auth/register", user);
     return true;
   } catch (err) {
     if (axios.isAxiosError(err) && !err.response) {
@@ -32,7 +32,7 @@ export async function registerUser(user: User): Promise<boolean> {
 
 export async function loginUser(identifier: string, password: string, role: string): Promise<User | null> {
   try {
-    const res = await API.post("/auth/login", {
+    const res = await API.post("auth/login", {
       email: identifier,
       password,
     });
