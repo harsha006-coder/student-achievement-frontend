@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const getBaseURL = () => {
-  let url = import.meta.env.VITE_API_URL || "https://student-achievement-backend-production.up.railway.app/api/";
+  let url = import.meta.env.VITE_API_URL || "/api/";
   if (!url.endsWith("/")) {
     url += "/";
   }
