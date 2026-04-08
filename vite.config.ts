@@ -14,6 +14,12 @@ export default defineConfig(({ mode: _mode }) => ({
       }
     }
   },
+  preview: {
+    host: true,
+    allowedHosts: [
+      "student-achievement-frontend-production.up.railway.app"
+    ]
+  },
   plugins: [react()],
   resolve: {
     alias: {
